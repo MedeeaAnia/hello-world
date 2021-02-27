@@ -1,0 +1,129 @@
+#include <stdio.h>
+#include <stdlib.h>
+struct road
+{
+    int id;
+    struct road* next;
+};
+struct garage
+{
+    int val;
+    struct garage* urm;
+};
+struct road* head_road=NULL;
+struct garage* head_ga=NULL;
+void on_road(struct road* head_road,int n)
+{
+    struct road* p=(struct road*)malloc(sizeof(struct road));
+    p->id=n;
+    p->next=NULL;
+    struct road* q=head_road;
+    while(q->next!=NULL)
+        q=q->next;
+    q->next=p;
+    q->next->next=NULL;
+    //printf("%d ",p->id);
+
+}
+void enters_garage(struct road* head_road,struct garage* head_ga,int n)
+{
+    struct garage* p=(struct garage*)malloc(sizeof(struct garage));
+    struct road* node=head_road;
+    int sf=0;
+    while(node!=NULL)
+    {
+        if(n==node->id)
+        {
+           p->val=n;
+        p->urm=head_ga;
+        head=p;
+        sf=1;
+        }
+        node=node->next;
+
+    }
+    if(sf==0)
+        printf("error %d not on the road\n",n);
+
+}
+void exits_garage(struct road** head_road,struct garage** head_ga,int n)
+{
+    int result=head_ga->val;
+    if(n==result)
+    {
+        struct road* q=*(head_road);
+      struct road* p=(struct road*)malloc(sizeof(struct road));
+      p->id=result;
+      p->next=q;
+      head_road=p;
+      struct garage* node=*(head_ga);
+      node=node->next;
+      *head_ga=node;
+      free(node);
+    }
+    else
+        printf("error %d not at the exit\n",n);
+}
+void trucks_garage(struct garage* head_ga)
+{
+    if(head_ga==NULL)
+        printf("none\n");
+    else
+    {
+        struct garage* p=head_ga;
+        printf("%d ",p->val);
+        head_ga=head_ga->urm;
+
+    }
+    puts("\n");
+}
+void trucks_road(struct road* head_road)
+{
+    struct road*p=head_road;
+    while(p!=NULL)
+    {
+        printf("%d ",p->id);
+        p=p->next;
+    }
+}
+int main()
+{
+    int n;
+    char x[10],a,aux,mod;
+    FILE* fp;
+    fp=fopen("data.txt","r");
+    while(fgets(x,10,fp)!=NULL)
+    {
+        fscanf(fp,"%c",&a);
+        if(a=='S')
+        {
+            fscanf(fp,"%c",&aux);
+            fscanf(fp,"%c",&mod);
+            fscanf(fp,"%c",&aux);
+        }
+        else
+        {
+
+            fscanf(fp,"%c",&aux);
+            //printf("%c",aux);
+            fscanf(fp,"%d",&n);
+            printf("%d",n);
+            fscanf(fp,"%c",&aux);
+
+        }
+        if(a=='R')
+            on_road(head_road,n);
+        else if(a=='E')
+            enters_garage(head_road,head_ga,n);
+        else if(a=='X')
+            exits_garage(&head_road,&head_ga,n);
+        else if(a=='S'&&mod=='G')
+            trucks_garage(head_ga);
+        else if(a=='S'&&mod=='R')
+            trucks_road(head_road);
+
+
+    }
+    fclose(fp);
+    return 0;
+}
