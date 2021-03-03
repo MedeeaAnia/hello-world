@@ -1,0 +1,203 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+struct road
+{
+    int id;
+    struct road* next;
+};
+struct garage
+{
+    int val;
+    struct garage* urm;
+};
+struct road* head;
+struct garage* node;
+struct garage* ultim;
+void on_road(int n)
+{
+    struct road* p=(struct road*)malloc(sizeof(struct road));
+    p->id=n;
+    p->next=NULL;
+    struct road* q=head;
+    while(q->next!=NULL)
+        q=q->next;
+    q->next=p;
+    q->next->next=NULL;
+}
+void enters_garage(int m,struct road** head,struct garage** ultim)
+{
+    int ok=0;
+    struct road* qq=*head;
+    struct road* pp=*head;
+    struct road* y=*head;
+    struct garage* newnode=(struct garage*)malloc(sizeof(struct garage));
+    while(qq!=NULL)
+    {
+        if(qq->id==m)
+        {
+
+            if(m==pp->id)
+            {
+                puts("ok\n");
+                struct garage* temp=*ultim;
+                newnode->val=m;
+                newnode->urm=NULL;
+                temp->urm=newnode;
+                *ultim=newnode;
+                pp=pp->next;
+                *head=pp;
+                ok=1;
+                break;
+            }
+            else
+            {
+                struct garage* temp=*ultim;
+                newnode->val=m;
+                newnode->urm=NULL;
+                temp->urm=newnode;
+                *ultim=newnode;
+                y->next=qq->next;
+                qq->next=NULL;
+                ok=1;
+                break;
+            }
+        }
+        else
+        {
+            y=qq;
+            qq=qq->next;
+        }
+
+
+
+    }
+    if(ok==0)
+        printf("\nerror: car %d not on the road",m);
+
+}
+void exits_garage(int x,struct road** head,struct garage** node,struct garage** ultim)
+{
+    struct garage* b=*ultim;
+    struct garage* a=*node;
+    if(b->val!=x)
+        printf("\nerror: car %d not at the exit",x);
+    else
+    {
+        struct road* m=*head;
+        struct road* n=(struct road*)malloc(sizeof(struct road));
+        n->id=x;
+        n->next=m;
+        *head=n;
+        if(a->val==b->val)
+        {
+            a=a->urm;
+            b=b->urm;
+            *node=a;
+            *ultim=b;
+        }
+        else
+        {
+            b=b->urm;
+            *ultim=*node;
+        }
+
+    }
+}
+void cars_on_road()
+{
+    struct road* s=head;
+    int sf=0;
+    puts("\nR: ");
+    if(s==NULL)
+    {
+        printf("none");
+        sf=1;
+    }
+     if(sf==0)
+        while(s!=NULL)
+        {
+            printf("%d ",s->id);
+            s=s->next;
+        }
+}
+void cars_in_garage()
+{
+    struct garage* t=node;
+    int sf=0;
+    puts("\nG: ");
+    if(t==NULL)
+    {
+        printf("none");
+        sf=1;
+    }
+     if(sf==0)
+        while(t!=NULL)
+        {
+            printf("%d ",t->val);
+            t=t->urm;
+        }
+}
+int main()
+{
+    int nr=0,sf=0,count=0,ok=0;
+    char mod,ins;
+    char x[10];
+    FILE*fp;
+    fp=fopen("data.txt","r");
+    if(fp==NULL)
+        printf("ERROR");
+    while(fgets(x,10,fp)!=NULL)
+    {
+        nr=0;
+        count=0;
+        ins=x[0];
+        if(ins=='S')
+            mod=x[2];
+        else
+        {
+            for(int i=2; x[i]>=48&&x[i]<=57; i++)
+                count++;
+            for(int i=0; i<count; i++)
+                nr=nr*pow(10,i)+(x[i+2]-'0');
+
+        }
+        if(ins=='R')
+        {
+            if(sf==0)
+            {
+                head=(struct road*)malloc(sizeof(struct road));///create the head for the list(road)
+                head->id=nr;
+                head->next=NULL;
+                sf=1;
+            }
+            else
+                on_road(nr);
+        }
+        else if(ins=='E')
+        {
+            if(ok==0)
+            {
+                ultim=(struct garage*)malloc(sizeof(struct garage));///creat the top of the stack
+                node=(struct garage*)malloc(sizeof(struct garage));///create the head for the stack(garage)
+                node->val=nr;
+                node->urm=NULL;
+                ultim->val=nr;
+                ultim->urm=NULL;
+                ok=1;
+            }
+            else
+                enters_garage(nr,&head,&ultim);
+        }
+
+        else if(ins=='X')
+            exits_garage(nr,&head,&node,&ultim);
+        else if(ins=='S'&&mod=='R')
+            cars_on_road();
+        else
+            cars_in_garage();
+
+    }
+    fclose(fp);
+    return 0;
+}
