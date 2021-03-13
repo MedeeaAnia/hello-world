@@ -1,0 +1,109 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+struct node
+{
+    char name[20];
+    struct node* next;
+};
+struct node* head=NULL;
+struct node* last=NULL;
+int n;
+void deleteNode(char *name)
+{
+   // printf("NAME:%s\n",name);
+    printf("HEAD: %s \n",head->name);
+    printf("TAIL: %s \n",last->name);
+    struct node* p=head;
+    if(strcmp(head->name,name)==0)
+    {
+        p=p->next;
+        last->next=p;
+        head=p;
+
+    }
+    else if(strcmp(last->name,name)==0)
+    {
+        struct node* prev;
+        while(p->next!=last)
+        {
+            prev=p;
+            p=p->next;
+        }
+
+        prev->next=head;
+        last=prev;
+        printf("Name tail after elimination: %s \n",last->name);
+    }
+    else
+    {
+        struct node* prev1;
+        while(strcmp(p->name,name)!=0)
+        {
+            prev1=p;
+            p=p->next;
+        }
+        prev1->next=p->next;
+    }
+}
+void addNode(char *s)
+{
+    if(head==NULL)
+    {
+        head=(struct node*)malloc(sizeof(struct node));
+        last=(struct node*)malloc(sizeof(struct node));
+        strcpy(head->name,s);
+        head->next==head;
+        last=head;
+    }
+    else
+    {
+        struct node* newnode=(struct node*)malloc(sizeof(struct node));
+        strcpy(newnode->name,s);
+        if(head==last)
+            head->next=newnode;///link the head with the next node
+        else
+        {
+            struct node* q=last;
+            q->next=newnode;
+        }
+        newnode->next=head;
+        last=newnode;
+    }
+}
+void winner()
+{
+    int i=0;
+    while(head!=last)
+    {struct node* elimination=head;
+        printf("BEFORE FOR: %s\n",elimination->name);
+        i=0;
+        while(i<=7)
+        elimination=elimination->next;
+        printf("Person to eliminate: %s\n",elimination->name);
+        deleteNode(elimination->name);
+    }
+    printf("The winner is: %s",head->name);
+}
+
+int main()
+{
+    char x[20];
+    FILE* fp;
+    fp=fopen("data.txt","r");
+    fscanf(fp,"%d",&n);
+    for(int i=0; i<=n; i++)
+    {
+        fscanf(fp,"%s",x);
+        addNode(x);
+    }
+    fclose(fp);
+    struct node* p=head;
+    /*while(p->next!=head)
+    {
+        printf("%s ",p->name);
+        p=p->next;
+    }*/
+    winner();
+    return 0;
+}
