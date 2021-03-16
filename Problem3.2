@@ -1,0 +1,111 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include<string.h>
+typedef struct NODE
+{
+    int count;
+    char word[20];
+    struct NODE* left;
+    struct NODE* right;
+} node;
+node* head=NULL;
+node* tail=NULL;
+void addNode(char aux[20])
+{
+    if(head==NULL)
+    {
+        head=(node*)malloc(sizeof(node));
+        tail=(node*)malloc(sizeof(node));
+        head->count=1;
+        strcpy(head->word,aux);
+        head->left=NULL;
+        head->right=NULL;
+        tail=head;
+    }
+    else
+    {
+        node* current=head;
+        node* prev=head;
+        while(current!=NULL && stricmp(current->word,aux)>0)
+        {
+            prev=current;
+            current=current->right;
+        }
+        if(stricmp(prev->word,aux)==0)///verify if the word repeats
+        {
+            if(stricmp(prev->word,head->word)==0)///if the word is the same with the one from the head increase count
+                head->count++;
+            else if(stricmp(prev->word,tail->word)==0)///if the word is the same with the one from the tail increase count
+                tail->count++;
+            else
+                prev->count++;///else increase the count of the word that has already appeared
+        }
+        else///if the word hasn't already appeared then we need to create a new node
+        {
+            node* newnode=(node*)malloc(sizeof(node));///allocate memory for the new node
+            strcpy(newnode->word,aux);///put the word into the new node
+            newnode->count=1;///increase the number of apparitions to 1
+            if(stricmp(newnode->word,head->word)<0)
+            {
+                newnode->right=head;
+                newnode->left=NULL;
+                head=newnode;
+            }
+
+            else if(stricmp(newnode->word,tail->word)>0)
+            {
+
+                tail->right=newnode;
+                newnode->left=tail;
+                newnode->right=NULL;
+                tail=newnode;
+
+            }
+            else
+            {
+
+                if(prev==head)
+                {
+                    newnode->right=head->right;
+                    newnode->left=head;
+                    head->right=newnode;
+                }
+                else
+                {
+                    newnode->right=prev->right;
+                newnode->left=prev;
+                prev->right=newnode;
+                prev->right->left=newnode;
+                }
+
+            }
+        }
+
+    }
+}
+int main()
+{
+    FILE* fp;
+    char aux[20];
+    fp=fopen("input.txt","r");
+    if(fp==NULL)
+        printf("ERROR");
+    else
+        while(fscanf(fp,"%s",aux)!=EOF)
+            addNode(aux);
+    fclose(fp);
+    node* q=head;
+    while(q!=NULL)
+    {
+        printf("%s: %d \n",q->word,q->count);
+        q=q->right;
+    }
+    node* p=tail;
+    puts("Inverse order: ");
+    while(p!=NULL)
+    {
+        printf("%s: %d \n",p->word,p->count);
+        p=p->left;
+    }
+    return 0;
+}
